@@ -20,17 +20,15 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Biblioteca CECyTE</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    Bienvenido/a, {{ Auth::user()->nombre }}
-                </span>
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
-                </form>
-            </div>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
+            <span class="navbar-text me-3">
+                Bienvenido, {{ Auth::user()->nombre }}
+            </span>
+            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+            </form>
         </div>
     </nav>
 
