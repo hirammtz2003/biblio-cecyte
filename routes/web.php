@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
+
+// Rutas de administración
+Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('/usuarios', [AdminController::class, 'index'])->name('admin.usuarios.index');
+    Route::put('/usuarios/{id}/tipo', [AdminController::class, 'updateTipoUsuario'])->name('admin.usuarios.update-tipo');
+    Route::get('/estadisticas', [AdminController::class, 'getEstadisticas'])->name('admin.estadisticas');
 });

@@ -22,6 +22,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
+            @if(Auth::user()->isAdmin())
+                <a class="nav-link" href="{{ route('admin.usuarios.index') }}">
+                    <i class="fas fa-users-cog"></i> Administración
+                </a>
+            @endif
             <span class="navbar-text me-3">
                 Bienvenido, {{ Auth::user()->nombre }}
             </span>
