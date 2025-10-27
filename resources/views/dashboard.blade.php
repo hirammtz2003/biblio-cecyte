@@ -27,6 +27,11 @@
                     <i class="fas fa-users-cog"></i> Administración
                 </a>
             @endif
+            @if(Auth::user()->tipo_usuario === 'Docente')
+                <a class="nav-link" href="{{ route('docente.libros.index') }}">
+                    <i class="fas fa-book"></i> Mis Libros
+                </a>
+            @endif
             <span class="navbar-text me-3">
                 Bienvenido, {{ Auth::user()->nombre }}
             </span>

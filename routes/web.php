@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LibroController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,4 +34,15 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/usuarios', [AdminController::class, 'index'])->name('admin.usuarios.index');
     Route::put('/usuarios/{id}/tipo', [AdminController::class, 'updateTipoUsuario'])->name('admin.usuarios.update-tipo');
     Route::get('/estadisticas', [AdminController::class, 'getEstadisticas'])->name('admin.estadisticas');
+});
+
+// Rutas para docentes (gestión de libros)
+Route::middleware('auth')->prefix('docente')->group(function () {
+    Route::get('/libros', [LibroController::class, 'index'])->name('docente.libros.index');
+    Route::get('/libros/create', [LibroController::class, 'create'])->name('docente.libros.create');
+    Route::post('/libros', [LibroController::class, 'store'])->name('docente.libros.store');
+    Route::get('/libros/{id}/edit', [LibroController::class, 'edit'])->name('docente.libros.edit');
+    Route::put('/libros/{id}', [LibroController::class, 'update'])->name('docente.libros.update');
+    Route::delete('/libros/{id}', [LibroController::class, 'destroy'])->name('docente.libros.destroy');
+    Route::get('/libros/{id}/download', [LibroController::class, 'download'])->name('docente.libros.download');
 });

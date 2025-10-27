@@ -206,6 +206,16 @@
                             <label class="form-label">Usuario:</label>
                             <p class="form-control-plaintext" id="edit_user_name"></p>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="tipo_usuario" class="form-label">Nueva Carrera:</label>
+                            <select name="tipo_usuario" id="tipo_usuario" class="form-select" required>
+                                <option value="Soporte y Mantenimiento de Equipo de Cómputo">Soporte y Mantenimiento de Equipo de Cómputo</option>
+                                <option value="Enfermería General">Enfermería General</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Diseño Gráfico Digital">Diseño Gráfico Digital</option>
+                            </select>
+                        </div>
                         
                         <div class="mb-3">
                             <label for="tipo_usuario" class="form-label">Nuevo Tipo de Usuario:</label>
