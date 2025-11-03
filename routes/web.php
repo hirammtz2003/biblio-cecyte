@@ -32,7 +32,8 @@ Route::middleware('auth')->group(function () {
 // Rutas de administración
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/usuarios', [AdminController::class, 'index'])->name('admin.usuarios.index');
-    Route::put('/usuarios/{id}/tipo', [AdminController::class, 'updateTipoUsuario'])->name('admin.usuarios.update-tipo');
+    Route::put('/usuarios/{id}', [AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
+    Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUsuario'])->name('admin.usuarios.destroy');
     Route::get('/estadisticas', [AdminController::class, 'getEstadisticas'])->name('admin.estadisticas');
 });
 

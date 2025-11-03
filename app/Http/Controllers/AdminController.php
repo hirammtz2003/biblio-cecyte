@@ -12,10 +12,7 @@ class AdminController extends Controller
 {
     public function __construct()
     {
-        // Aplicar middleware de autenticación
         $this->middleware('auth');
-        
-        // Verificar que el usuario sea administrador
         $this->middleware(function ($request, $next) {
             if (!Auth::check() || !Auth::user()->isAdmin()) {
                 abort(403, 'No tienes permisos de administrador.');
@@ -26,13 +23,25 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        // Obtener parámetros de filtro y ordenamiento
+        // Obtener parámetros de filtro, ordenamiento y búsqueda
         $tipoFiltro = $request->get('tipo', 'todos');
         $carreraFiltro = $request->get('carrera', 'todas');
         $orden = $request->get('orden', 'registro_desc');
+        $busqueda = $request->get('busqueda', '');
 
         // Construir consulta
         $query = Usuario::query();
+
+        // Aplicar búsqueda por nombre o apellidos
+        if (!empty($busqueda)) {
+            $query->where(function($q) use ($busqueda) {
+                $q->where('nombre', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('apellido_paterno', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('apellido_materno', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('numero_control', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('email', 'LIKE', "%{$busqueda}%");
+            });
+        }
 
         // Aplicar filtros
         if ($tipoFiltro !== 'todos') {
@@ -60,22 +69,24 @@ class AdminController extends Controller
                 break;
         }
 
-        $usuarios = $query->get();
-        $totalUsuarios = $usuarios->count();
+        $usuarios = $query->paginate(15);
+        $totalUsuarios = $usuarios->total();
 
         return view('admin.usuarios.index', compact(
             'usuarios', 
             'totalUsuarios',
             'tipoFiltro',
             'carreraFiltro',
-            'orden'
+            'orden',
+            'busqueda'
         ));
     }
 
-    public function updateTipoUsuario(Request $request, $id)
+    public function updateUsuario(Request $request, $id)
     {
         $request->validate([
             'tipo_usuario' => 'required|in:Administrador,Docente,Alumno',
+            'carrera' => 'required|in:Soporte y Mantenimiento de Equipo de Cómputo,Enfermería General,Ventas,Diseño Gráfico Digital',
             'admin_password' => 'required'
         ]);
 
@@ -100,15 +111,61 @@ class AdminController extends Controller
             }
         }
 
-        $usuario->update(['tipo_usuario' => $request->tipo_usuario]);
+        $usuario->update([
+            'tipo_usuario' => $request->tipo_usuario,
+            'carrera' => $request->carrera
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Tipo de usuario actualizado correctamente.',
+            'message' => 'Usuario actualizado correctamente.',
             'usuario' => [
                 'nombre_completo' => $usuario->getNombreCompleto(),
-                'tipo_usuario' => $usuario->tipo_usuario
+                'tipo_usuario' => $usuario->tipo_usuario,
+                'carrera' => $usuario->carrera
             ]
+        ]);
+    }
+
+    public function destroyUsuario(Request $request, $id)
+    {
+        $request->validate([
+            'admin_password' => 'required'
+        ]);
+
+        // Verificar contraseña del administrador
+        if (!Hash::check($request->admin_password, Auth::user()->contrasena)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contraseña de administrador incorrecta.'
+            ], 422);
+        }
+
+        $usuario = Usuario::findOrFail($id);
+        
+        // Prevenir que el admin se elimine a sí mismo
+        if ($usuario->id === Auth::user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes eliminar tu propia cuenta.'
+            ], 422);
+        }
+
+        // Verificar si el usuario tiene libros subidos
+        $tieneLibros = $usuario->libros()->exists();
+        if ($tieneLibros) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede eliminar el usuario porque tiene libros subidos. Elimina primero sus libros.'
+            ], 422);
+        }
+
+        $nombreUsuario = $usuario->getNombreCompleto();
+        $usuario->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Usuario {$nombreUsuario} eliminado correctamente."
         ]);
     }
 

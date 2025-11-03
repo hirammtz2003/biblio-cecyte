@@ -105,7 +105,18 @@
                 <div class="filter-section">
                     <form method="GET" action="{{ route('admin.usuarios.index') }}" id="filterForm">
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label class="form-label">Buscar:</label>
+                                <div class="input-group">
+                                    <input type="text" name="busqueda" class="form-control" 
+                                        placeholder="Nombre, apellidos, email..." 
+                                        value="{{ $busqueda }}">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <label class="form-label">Filtrar por Tipo:</label>
                                 <select name="tipo" class="form-select" onchange="document.getElementById('filterForm').submit()">
                                     <option value="todos" {{ $tipoFiltro == 'todos' ? 'selected' : '' }}>Todos los tipos</option>
@@ -114,7 +125,7 @@
                                     <option value="Alumno" {{ $tipoFiltro == 'Alumno' ? 'selected' : '' }}>Alumnos</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Filtrar por Carrera:</label>
                                 <select name="carrera" class="form-select" onchange="document.getElementById('filterForm').submit()">
                                     <option value="todas" {{ $carreraFiltro == 'todas' ? 'selected' : '' }}>Todas las carreras</option>
@@ -125,7 +136,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Ordenar por:</label>
                                 <select name="orden" class="form-select" onchange="document.getElementById('filterForm').submit()">
                                     <option value="registro_desc" {{ $orden == 'registro_desc' ? 'selected' : '' }}>Más recientes primero</option>
@@ -166,11 +177,22 @@
                                     </td>
                                     <td>{{ $usuario->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary edit-tipo-btn" 
-                                                data-user-id="{{ $usuario->id }}"
-                                                data-current-tipo="{{ $usuario->tipo_usuario }}">
-                                            <i class="fas fa-edit"></i> Editar Tipo
-                                        </button>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary edit-usuario-btn" 
+                                                    data-user-id="{{ $usuario->id }}"
+                                                    data-current-tipo="{{ $usuario->tipo_usuario }}"
+                                                    data-current-carrera="{{ $usuario->carrera }}"
+                                                    data-user-name="{{ $usuario->getNombreCompleto() }}">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            @if($usuario->id !== Auth::id())
+                                                <button class="btn btn-sm btn-outline-danger delete-usuario-btn" 
+                                                        data-user-id="{{ $usuario->id }}"
+                                                        data-user-name="{{ $usuario->getNombreCompleto() }}">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -189,40 +211,40 @@
         </div>
     </div>
 
-    <!-- Modal para editar tipo de usuario -->
-    <div class="modal fade" id="editTipoModal" tabindex="-1">
+    <!-- Modal para editar usuario -->
+    <div class="modal fade" id="editUsuarioModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Editar Tipo de Usuario</h5>
+                    <h5 class="modal-title">Editar Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editTipoForm">
+                    <form id="editUsuarioForm">
                         @csrf
                         <input type="hidden" name="user_id" id="edit_user_id">
                         
                         <div class="mb-3">
                             <label class="form-label">Usuario:</label>
-                            <p class="form-control-plaintext" id="edit_user_name"></p>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="tipo_usuario" class="form-label">Nueva Carrera:</label>
-                            <select name="tipo_usuario" id="tipo_usuario" class="form-select" required>
-                                <option value="Soporte y Mantenimiento de Equipo de Cómputo">Soporte y Mantenimiento de Equipo de Cómputo</option>
-                                <option value="Enfermería General">Enfermería General</option>
-                                <option value="Ventas">Ventas</option>
-                                <option value="Diseño Gráfico Digital">Diseño Gráfico Digital</option>
-                            </select>
+                            <p class="form-control-plaintext fw-bold" id="edit_user_name"></p>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="tipo_usuario" class="form-label">Nuevo Tipo de Usuario:</label>
+                            <label for="tipo_usuario" class="form-label">Tipo de Usuario:</label>
                             <select name="tipo_usuario" id="tipo_usuario" class="form-select" required>
                                 <option value="Alumno">Alumno</option>
                                 <option value="Docente">Docente</option>
                                 <option value="Administrador">Administrador</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="carrera" class="form-label">Carrera:</label>
+                            <select name="carrera" id="carrera" class="form-select" required>
+                                <option value="Soporte y Mantenimiento de Equipo de Cómputo">Soporte y Mantenimiento de Equipo de Cómputo</option>
+                                <option value="Enfermería General">Enfermería General</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Diseño Gráfico Digital">Diseño Gráfico Digital</option>
                             </select>
                         </div>
                         
@@ -235,7 +257,40 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveTipoBtn">Guardar Cambios</button>
+                    <button type="button" class="btn btn-primary" id="saveUsuarioBtn">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para eliminar usuario -->
+    <div class="modal fade" id="deleteUsuarioModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteUsuarioForm">
+                        @csrf
+                        <input type="hidden" name="user_id" id="delete_user_id">
+                        
+                        <div class="mb-3">
+                            <p>¿Estás seguro de que deseas eliminar al usuario <strong id="delete_user_name"></strong>?</p>
+                            <p class="text-danger"><small>Esta acción no se puede deshacer.</small></p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="delete_admin_password" class="form-label">Tu Contraseña de Administrador:</label>
+                            <input type="password" name="admin_password" id="delete_admin_password" class="form-control" required>
+                            <div class="form-text">Por seguridad, ingresa tu contraseña para confirmar la eliminación.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar Usuario</button>
                 </div>
             </div>
         </div>
@@ -253,71 +308,139 @@
                     document.getElementById('total-docentes').textContent = data.docentes;
                     document.getElementById('total-alumnos').textContent = data.alumnos;
                 });
-        });
 
-        // Manejar edición de tipo de usuario
-        document.querySelectorAll('.edit-tipo-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.dataset.userId;
-                const currentTipo = this.dataset.currentTipo;
-                const userName = this.closest('tr').querySelector('td:first-child').textContent;
-                
-                document.getElementById('edit_user_id').value = userId;
-                document.getElementById('edit_user_name').textContent = userName;
-                document.getElementById('tipo_usuario').value = currentTipo;
-                document.getElementById('admin_password').value = '';
-                
-                const modal = new bootstrap.Modal(document.getElementById('editTipoModal'));
-                modal.show();
+            // Manejar edición de usuario
+            document.querySelectorAll('.edit-usuario-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const currentTipo = this.dataset.currentTipo;
+                    const currentCarrera = this.dataset.currentCarrera;
+                    const userName = this.dataset.userName;
+                    
+                    document.getElementById('edit_user_id').value = userId;
+                    document.getElementById('edit_user_name').textContent = userName;
+                    document.getElementById('tipo_usuario').value = currentTipo;
+                    document.getElementById('carrera').value = currentCarrera;
+                    document.getElementById('admin_password').value = '';
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('editUsuarioModal'));
+                    modal.show();
+                });
             });
-        });
 
-        // Guardar cambios
-        document.getElementById('saveTipoBtn').addEventListener('click', function() {
-            const formData = new FormData(document.getElementById('editTipoForm'));
-            const userId = formData.get('user_id');
-            
-            fetch(`/admin/usuarios/${userId}/tipo`, {
-                method: 'PUT',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    tipo_usuario: formData.get('tipo_usuario'),
-                    admin_password: formData.get('admin_password')
+            // Manejar eliminación de usuario
+            document.querySelectorAll('.delete-usuario-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const userName = this.dataset.userName;
+                    
+                    document.getElementById('delete_user_id').value = userId;
+                    document.getElementById('delete_user_name').textContent = userName;
+                    document.getElementById('delete_admin_password').value = '';
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('deleteUsuarioModal'));
+                    modal.show();
+                });
+            });
+
+            // Guardar cambios de edición
+            document.getElementById('saveUsuarioBtn').addEventListener('click', function() {
+                const formData = new FormData(document.getElementById('editUsuarioForm'));
+                const userId = formData.get('user_id');
+                
+                fetch(`/admin/usuarios/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tipo_usuario: formData.get('tipo_usuario'),
+                        carrera: formData.get('carrera'),
+                        admin_password: formData.get('admin_password')
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Actualizar la fila en la tabla
-                    const userRow = document.getElementById(`user-${userId}`);
-                    const tipoCell = userRow.querySelector('td:nth-child(5)');
-                    const badge = tipoCell.querySelector('.badge');
-                    
-                    // Actualizar badge
-                    badge.className = `badge badge-${data.usuario.tipo_usuario.toLowerCase()}`;
-                    badge.textContent = data.usuario.tipo_usuario;
-                    
-                    // Actualizar botón
-                    const editBtn = userRow.querySelector('.edit-tipo-btn');
-                    editBtn.dataset.currentTipo = data.usuario.tipo_usuario;
-                    
-                    // Cerrar modal y mostrar mensaje
-                    bootstrap.Modal.getInstance(document.getElementById('editTipoModal')).hide();
-                    alert('Tipo de usuario actualizado correctamente.');
-                    
-                    // Recargar estadísticas
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al actualizar el tipo de usuario.');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar la fila en la tabla
+                        const userRow = document.getElementById(`user-${userId}`);
+                        
+                        // Actualizar tipo de usuario
+                        const tipoCell = userRow.querySelector('td:nth-child(5)');
+                        const badge = tipoCell.querySelector('.badge');
+                        
+                        badge.className = `badge badge-${data.usuario.tipo_usuario.toLowerCase()}`;
+                        badge.textContent = data.usuario.tipo_usuario;
+                        
+                        // Actualizar carrera
+                        const carreraCell = userRow.querySelector('td:nth-child(4)');
+                        carreraCell.textContent = data.usuario.carrera;
+                        
+                        // Actualizar datos en los botones
+                        const editBtn = userRow.querySelector('.edit-usuario-btn');
+                        editBtn.dataset.currentTipo = data.usuario.tipo_usuario;
+                        editBtn.dataset.currentCarrera = data.usuario.carrera;
+                        
+                        // Cerrar modal y mostrar mensaje
+                        bootstrap.Modal.getInstance(document.getElementById('editUsuarioModal')).hide();
+                        alert('Usuario actualizado correctamente.');
+                        
+                        // Recargar estadísticas
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al actualizar el usuario.');
+                });
+            });
+
+            // Confirmar eliminación
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                const formData = new FormData(document.getElementById('deleteUsuarioForm'));
+                const userId = formData.get('user_id');
+                
+                fetch(`/admin/usuarios/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        admin_password: formData.get('admin_password')
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover la fila de la tabla
+                        const userRow = document.getElementById(`user-${userId}`);
+                        userRow.remove();
+                        
+                        // Actualizar contador
+                        const badgeCount = document.querySelector('.admin-header .badge');
+                        const currentCount = parseInt(badgeCount.textContent);
+                        badgeCount.textContent = `${currentCount - 1} usuario(s) encontrado(s)`;
+                        
+                        // Cerrar modal y mostrar mensaje
+                        bootstrap.Modal.getInstance(document.getElementById('deleteUsuarioModal')).hide();
+                        alert('Usuario eliminado correctamente.');
+                        
+                        // Recargar estadísticas
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el usuario.');
+                });
             });
         });
     </script>

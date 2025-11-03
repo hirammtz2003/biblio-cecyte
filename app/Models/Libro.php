@@ -26,6 +26,7 @@ class Libro extends Model
         'tamanio',
         'id_usuario',
         'activo',
+        'descargable',
         'veces_descargado',
         'veces_visto'
     ];

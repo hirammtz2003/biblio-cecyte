@@ -118,6 +118,7 @@ class LibroController extends Controller
                 'hash_archivo' => $hashArchivo,
                 'tamanio' => $archivo->getSize(),
                 'id_usuario' => Auth::id(),
+                'descargable' => $request->has('descargable'), // ← Agregar esta línea
             ]);
 
             return redirect()->route('docente.libros.index')
@@ -148,9 +149,11 @@ class LibroController extends Controller
             'materia' => 'required|string|max:150',
         ]);
 
-        $libro->update($request->only([
+        $libro->update(array_merge($request->only([
             'titulo', 'autor', 'anio_publicacion', 'descripcion', 
             'isbn', 'carrera', 'semestre', 'materia'
+        ]), [
+            'descargable' => $request->has('descargable') // ← Agregar esta línea
         ]));
 
         return redirect()->route('docente.libros.index')
@@ -174,6 +177,11 @@ class LibroController extends Controller
     public function download($id)
     {
         $libro = Libro::findOrFail($id);
+        
+        // Verificar si el libro es descargable
+        if (!$libro->descargable) {
+            abort(403, 'Este libro no está disponible para descarga.');
+        }
         
         // Incrementar contador de descargas
         $libro->increment('veces_descargado');
