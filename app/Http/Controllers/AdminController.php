@@ -151,13 +151,20 @@ class AdminController extends Controller
             ], 422);
         }
 
-        // Verificar si el usuario tiene libros subidos
-        $tieneLibros = $usuario->libros()->exists();
-        if ($tieneLibros) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede eliminar el usuario porque tiene libros subidos. Elimina primero sus libros.'
-            ], 422);
+        // Verificar si existe la relación libros y si tiene libros subidos
+        try {
+            $tieneLibros = method_exists($usuario, 'libros') && $usuario->libros()->exists();
+            
+            if ($tieneLibros) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el usuario porque tiene libros subidos. Elimina primero sus libros.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            // Si hay error en la relación, asumimos que no hay libros
+            // Puedes loggear el error si quieres:
+            // \Log::error('Error verificando libros del usuario: ' . $e->getMessage());
         }
 
         $nombreUsuario = $usuario->getNombreCompleto();

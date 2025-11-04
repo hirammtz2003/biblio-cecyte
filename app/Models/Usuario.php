@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 class Usuario extends Authenticatable
@@ -11,34 +11,70 @@ class Usuario extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $table = 'usuarios';
-    
+
     protected $fillable = [
-        'nombre',
-        'apellido_paterno', 
-        'apellido_materno',
-        'carrera',
         'numero_control',
+        'nombre',
+        'apellido_paterno',
+        'apellido_materno',
         'email',
         'contrasena',
-        'tipo_usuario'
+        'carrera',
+        'tipo_usuario',
     ];
 
     protected $hidden = [
-        'contrasena', 'remember_token'
+        'contrasena',
+        'remember_token',
     ];
 
-    // Para Laravel Auth - usar 'contrasena' en lugar de 'password'
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * Get the password for the user.
+     */
     public function getAuthPassword()
     {
         return $this->contrasena;
     }
 
-    // Mantener compatibilidad con tu código existente
+    /**
+     * Relación con los libros subidos por el usuario
+     */
+    public function libros()
+    {
+        return $this->hasMany(Libro::class, 'usuario_id');
+    }
+
+    /**
+     * Verificar si el usuario es administrador
+     */
     public function isAdmin()
     {
         return $this->tipo_usuario === 'Administrador';
     }
 
+    /**
+     * Verificar si el usuario es docente
+     */
+    public function isDocente()
+    {
+        return $this->tipo_usuario === 'Docente';
+    }
+
+    /**
+     * Verificar si el usuario es alumno
+     */
+    public function isAlumno()
+    {
+        return $this->tipo_usuario === 'Alumno';
+    }
+
+    /**
+     * Obtener el nombre completo del usuario
+     */
     public function getNombreCompleto()
     {
         return $this->nombre . ' ' . $this->apellido_paterno . ' ' . $this->apellido_materno;

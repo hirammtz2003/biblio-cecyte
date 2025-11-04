@@ -63,55 +63,15 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     <div class="card-body text-center">
-                        <h5 class="card-title">📚 Catálogo de Libros</h5>
-                        <p class="card-text">Explora nuestra colección de libros disponibles.</p>
-                        <button class="btn btn-primary" disabled>Próximamente</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
                         <h5 class="card-title">🔍 Buscar Libros</h5>
                         <p class="card-text">Encuentra libros por título, autor o categoría.</p>
                         <button class="btn btn-primary" disabled>Próximamente</button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">📖 Mis Préstamos</h5>
-                        <p class="card-text">Consulta tus libros prestados y fechas de entrega.</p>
-                        <button class="btn btn-primary" disabled>Próximamente</button>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- User Info -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">Información del Usuario</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Nombre:</strong> {{ Auth::user()->getNombreCompleto() }}</p>
-                        <p><strong>Número de Control:</strong> {{ Auth::user()->numero_control }}</p>
-                        <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Carrera:</strong> {{ Auth::user()->carrera }}</p>
-                        <p><strong>Tipo de Usuario:</strong> 
-                            <span class="badge bg-{{ Auth::user()->isAdmin() ? 'danger' : 'primary' }}">
-                                {{ Auth::user()->tipo_usuario }}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
