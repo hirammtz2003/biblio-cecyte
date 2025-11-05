@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LibroController;
+use App\Http\Controllers\BusquedaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,4 +47,10 @@ Route::middleware('auth')->prefix('docente')->group(function () {
     Route::put('/libros/{id}', [LibroController::class, 'update'])->name('docente.libros.update');
     Route::delete('/libros/{id}', [LibroController::class, 'destroy'])->name('docente.libros.destroy');
     Route::get('/libros/{id}/download', [LibroController::class, 'download'])->name('docente.libros.download');
+});
+
+// Rutas de búsqueda (disponible para todos los usuarios autenticados)
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [BusquedaController::class, 'index'])->name('dashboard');
+    Route::get('/buscar', [BusquedaController::class, 'buscar'])->name('busqueda.buscar');
 });
