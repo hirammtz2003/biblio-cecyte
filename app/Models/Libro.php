@@ -83,4 +83,15 @@ class Libro extends Model
             return $bytes . ' bytes';
         }
     }
+
+    // En el modelo Libro
+    public function getUrlPdf()
+    {
+        return route('libro.pdf', $this->id);
+    }
+
+    public function getUrlDescarga()
+    {
+        return $this->descargable ? route('libro.descargar', $this->id) : null;
+    }
 }

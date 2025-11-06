@@ -21,18 +21,24 @@
         @foreach($libros as $libro)
             <div class="col">
                 <div class="card book-card">
-                    <div class="book-cover">
-                        <i class="fas fa-book fa-3x text-muted"></i>
-                        <small class="d-block mt-2">{{ $libro->getTamanioFormateado() }}</small>
+                    <div class="book-cover text-center p-2">
+                        <a href="{{ route('libro.ver', $libro->id) }}" class="text-decoration-none">
+                            <img src="{{ route('thumbnail.obtener', $libro->id) }}" 
+                                 alt="{{ $libro->titulo }}"
+                                 class="img-fluid rounded"
+                                 style="max-height: 150px; width: auto;"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDEwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0zNSA1MEg2NVY2NUgzNVY1MFpNNTAgODBDNDQuNDc3MiA4MCA0MCA3NS41MjI4IDQwIDcwQzQwIDY0LjQ3NzIgNDQuNDc3MiA2MCA1MCA2MEM1NS41MjI4IDYwIDYwIDY0LjQ3NzIgNjAgNzBDNjAgNzUuNTIyOCA1NS41MjI4IDgwIDUwIDgwWiIgZmlsbD0iIzlBOUE5QSIvPgo8L3N2Zz4K'">
+                            <small class="d-block text-muted mt-1">{{ $libro->getTamanioFormateado() }}</small>
+                        </a>
                     </div>
                     <div class="card-body text-center">
                         <h6 class="book-title">{{ $libro->titulo }}</h6>
                         <small class="text-muted">{{ $libro->autor }}</small>
                     </div>
                     <div class="card-footer bg-transparent">
-                        <button class="btn btn-sm btn-outline-primary w-100" disabled>
+                        <a href="{{ route('libro.ver', $libro->id) }}" class="btn btn-sm btn-outline-primary w-100">
                             <i class="fas fa-eye"></i> Ver
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

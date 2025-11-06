@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LibroController;
 use App\Http\Controllers\BusquedaController;
+use App\Http\Controllers\LibroViewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -53,4 +54,15 @@ Route::middleware('auth')->prefix('docente')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [BusquedaController::class, 'index'])->name('dashboard');
     Route::get('/buscar', [BusquedaController::class, 'buscar'])->name('busqueda.buscar');
+});
+
+// Rutas para thumbnails
+Route::get('/thumbnail/generar/{libro}', [ThumbnailController::class, 'generarThumbnail'])->name('thumbnail.generar');
+Route::get('/thumbnail/{libro}', [ThumbnailController::class, 'obtenerThumbnail'])->name('thumbnail.obtener');
+
+// Rutas para visualizar libros
+Route::middleware('auth')->group(function () {
+    Route::get('/libro/{libro}', [LibroViewController::class, 'ver'])->name('libro.ver');
+    Route::get('/libro/{libro}/descargar', [LibroViewController::class, 'descargar'])->name('libro.descargar');
+    Route::get('/libro/{libro}/pdf', [LibroViewController::class, 'verPdf'])->name('libro.pdf');
 });
