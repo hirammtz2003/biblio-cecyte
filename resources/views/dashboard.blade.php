@@ -83,7 +83,7 @@
     <div class="welcome-section">
         <div class="container text-center">
             <h1>Biblioteca Virtual CECyTE</h1>
-            <p class="lead">Sistema de gestión bibliotecaria</p>
+            <p class="lead">Sistema de consulta digital</p>
         </div>
     </div>
 
@@ -96,6 +96,18 @@
             </div>
         @endif
 
+        <!-- Mensaje de bienvenida -->
+        @if(empty($busqueda) && empty($carrera) && empty($semestre))
+        <div class="alert alert-info">
+            <h5>¡Bienvenido a la Biblioteca virtual oficial del CECyTEZ Plantel Río Grande!</h5>
+            <p class="mb-0">
+                Aquí podrás encontrar material bibliográfico y didáctico que te ayudará a realizar tus tareas y actividades escolares. 
+                Ingresa en la barra de búsqueda el título de un libro o palabras claves para buscar; también puedes usar los filtros 
+                disponibles para agilizar tu búsqueda.
+            </p>
+        </div>
+        @endif
+        
         <!-- Barra de Búsqueda -->
         <div class="search-section">
             <form method="GET" action="{{ route('busqueda.buscar') }}" id="searchForm">
@@ -162,62 +174,10 @@
             </form>
         </div>
 
-        <!-- Mensaje de bienvenida -->
-        @if(empty($busqueda) && empty($carrera) && empty($semestre))
-        <div class="alert alert-info">
-            <h5>¡Bienvenido a la Biblioteca virtual oficial del CECyTEZ!</h5>
-            <p class="mb-0">
-                Aquí podrás encontrar material bibliográfico y didáctico que te ayudará a realizar tus tareas y actividades escolares. 
-                Ingresa en la barra de búsqueda el título de un libro o palabras claves para buscar; también puedes usar los filtros 
-                disponibles para agilizar tu búsqueda.
-            </p>
-        </div>
-        @endif
-
         <!-- Resultados de búsqueda (solo se muestra en la página de resultados) -->
         @if(isset($libros))
             @include('busqueda.partials.resultados')
         @endif
-
-        <!-- Tarjetas de funcionalidades -->
-        <div class="row mt-5">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">📚 Mis Libros</h5>
-                        <p class="card-text">Gestiona tus libros subidos al sistema.</p>
-                        @if(Auth::user()->tipo_usuario === 'Docente')
-                            <a href="{{ route('docente.libros.index') }}" class="btn btn-primary">Acceder</a>
-                        @else
-                            <button class="btn btn-secondary" disabled>Solo para docentes</button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            
-            @if(Auth::user()->isAdmin())
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">👥 Administración</h5>
-                        <p class="card-text">Gestiona usuarios del sistema.</p>
-                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-primary">Acceder</a>
-                    </div>
-                </div>
-            </div>
-            @endif
-            
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">👤 Mi Perfil</h5>
-                        <p class="card-text">Actualiza tu información personal.</p>
-                        <a href="{{ route('profile.show') }}" class="btn btn-primary">Ver Perfil</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

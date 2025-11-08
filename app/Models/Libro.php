@@ -28,7 +28,9 @@ class Libro extends Model
         'activo',
         'descargable',
         'veces_descargado',
-        'veces_visto'
+        'veces_visto',
+        'ruta_primera_pagina',
+        'primera_pagina_generada'
     ];
 
     protected $casts = [
@@ -93,5 +95,13 @@ class Libro extends Model
     public function getUrlDescarga()
     {
         return $this->descargable ? route('libro.descargar', $this->id) : null;
+    }
+
+    public function getUrlPrimeraPagina()
+    {
+    if ($this->ruta_primera_pagina && Storage::exists($this->ruta_primera_pagina)) {
+        return asset('storage/' . str_replace('public/', '', $this->ruta_primera_pagina));
+    }
+    return null;
     }
 }
