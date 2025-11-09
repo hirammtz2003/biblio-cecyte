@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $libro->titulo }} - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -43,7 +44,7 @@
     </nav>
 
     <div class="container mt-4">
-        <!-- Migas de pan -->
+        <!--  -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Inicio</a></li>
@@ -60,6 +61,16 @@
                             <i class="fas fa-book"></i> {{ $libro->titulo }}
                         </h5>
                         <div>
+                            <!-- Botón de favoritos -->
+                            <button id="favoritoBtn" 
+                                    class="btn {{ Auth::user()->tieneFavorito($libro->id) ? 'btn-warning' : 'btn-light' }} btn-sm me-2"
+                                    data-libro-id="{{ $libro->id }}">
+                                <i class="fas {{ Auth::user()->tieneFavorito($libro->id) ? 'fa-star' : 'fa-star' }}"></i>
+                                <span id="favoritoText">
+                                    {{ Auth::user()->tieneFavorito($libro->id) ? 'En favoritos' : 'Agregar a favoritos' }}
+                                </span>
+                            </button>
+
                             @if($libro->descargable && $archivoExiste)
                                 <a href="{{ route('libro.descargar', $libro->id) }}" class="btn btn-light btn-sm">
                                     <i class="fas fa-download"></i> Descargar PDF
@@ -75,6 +86,7 @@
                             @endif
                         </div>
                     </div>
+
                     <div class="card-body p-0">
                         @if($archivoExiste)
                             <div class="pdf-container">
@@ -183,5 +195,95 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoritoBtn = document.getElementById('favoritoBtn');
+        
+        if (favoritoBtn) {
+            favoritoBtn.addEventListener('click', function() {
+                const libroId = this.dataset.libroId;
+                const btn = this;
+                const icon = btn.querySelector('i');
+                const text = document.getElementById('favoritoText');
+                
+                // Mostrar indicador de carga
+                btn.disabled = true;
+                const originalText = text.textContent;
+                text.textContent = 'Procesando...';
+                
+                fetch(`/favoritos/toggle/${libroId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}) // Enviar objeto vacío como body
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar apariencia del botón
+                        if (data.esFavorito) {
+                            btn.classList.remove('btn-light');
+                            btn.classList.add('btn-warning');
+                            text.textContent = 'En favoritos';
+                        } else {
+                            btn.classList.remove('btn-warning');
+                            btn.classList.add('btn-light');
+                            text.textContent = 'Agregar a favoritos';
+                        }
+                        
+                        // Mostrar mensaje temporal
+                        mostrarMensaje(data.mensaje, data.esFavorito ? 'success' : 'info');
+                    } else {
+                        throw new Error(data.mensaje || 'Error desconocido');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarMensaje('Error al actualizar favoritos: ' + error.message, 'danger');
+                    // Revertir texto del botón
+                    text.textContent = originalText;
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                });
+            });
+        }
+        
+        function mostrarMensaje(mensaje, tipo) {
+            // Remover mensajes existentes
+            const mensajesExistentes = document.querySelectorAll('.alert-temporal');
+            mensajesExistentes.forEach(msg => msg.remove());
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${tipo} alert-temporal alert-dismissible fade show position-fixed`;
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '1050';
+            alert.style.minWidth = '300px';
+            alert.innerHTML = `
+                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-info-circle'} me-2"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            // Auto-remover después de 4 segundos
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 4000);
+        }
+    });
+    </script>
 </body>
 </html>

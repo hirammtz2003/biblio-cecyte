@@ -104,4 +104,17 @@ class Libro extends Model
     }
     return null;
     }
+
+    // Agregar esta relación al modelo Libro
+    public function usuariosFavoritos()
+    {
+        return $this->belongsToMany(Usuario::class, 'libro_favorito', 'libro_id', 'usuario_id')
+                    ->withTimestamps();
+    }
+
+    // Método para contar favoritos
+    public function getContadorFavoritos()
+    {
+        return $this->usuariosFavoritos()->count();
+    }
 }

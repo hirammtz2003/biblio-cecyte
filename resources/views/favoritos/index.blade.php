@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Libros - Biblioteca CECyTE</title>
+    <title>Mis Libros Favoritos - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .docente-card {
+        .favoritos-card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .docente-header {
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        .favoritos-header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
             color: white;
             border-radius: 15px 15px 0 0;
         }
@@ -24,7 +24,7 @@
             margin-bottom: 1.5rem;
         }
         .book-card {
-            border-left: 4px solid #9b59b6;
+            border-left: 4px solid #ff6b6b;
             transition: transform 0.2s;
         }
         .book-card:hover {
@@ -40,13 +40,16 @@
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
+                <a class="nav-link active" href="{{ route('favoritos.index') }}">
+                    <i class="fas fa-star"></i> Mis Favoritos
+                </a>
                 @if(Auth::user()->isAdmin())
                     <a class="nav-link" href="{{ route('admin.usuarios.index') }}">
                         <i class="fas fa-users-cog"></i> Administración
                     </a>
                 @endif
                 @if(Auth::user()->tipo_usuario === 'Docente')
-                    <a class="nav-link active" href="{{ route('docente.libros.index') }}">
+                    <a class="nav-link" href="{{ route('docente.libros.index') }}">
                         <i class="fas fa-book"></i> Mis Libros
                     </a>
                 @endif
@@ -60,15 +63,12 @@
     </nav>
 
     <div class="container mt-4">
-        <div class="card docente-card">
-            <div class="card-header docente-header py-3">
+        <div class="card favoritos-card">
+            <div class="card-header favoritos-header py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
-                        <i class="fas fa-book"></i> Gestión de Libros
+                        <i class="fas fa-star"></i> Mis Libros Favoritos
                     </h4>
-                    <a href="{{ route('docente.libros.create') }}" class="btn btn-light">
-                        <i class="fas fa-plus"></i> Subir Nuevo Libro
-                    </a>
                 </div>
             </div>
             <div class="card-body p-4">
@@ -81,7 +81,7 @@
 
                 <!-- Barra de Búsqueda y Filtros -->
                 <div class="search-box">
-                    <form method="GET" action="{{ route('docente.libros.index') }}">
+                    <form method="GET" action="{{ route('favoritos.index') }}">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Buscar:</label>
@@ -97,15 +97,16 @@
                             <div class="col-md-4">
                                 <label class="form-label">Ordenar por:</label>
                                 <select name="orden" class="form-select" onchange="this.form.submit()">
-                                    <option value="fecha_desc" {{ $orden == 'fecha_desc' ? 'selected' : '' }}>Más recientes primero</option>
-                                    <option value="fecha_asc" {{ $orden == 'fecha_asc' ? 'selected' : '' }}>Más antiguos primero</option>
+                                    <option value="fecha_agregado_desc" {{ $orden == 'fecha_agregado_desc' ? 'selected' : '' }}>Más recientes primero</option>
+                                    <option value="fecha_agregado_asc" {{ $orden == 'fecha_agregado_asc' ? 'selected' : '' }}>Más antiguos primero</option>
                                     <option value="titulo_asc" {{ $orden == 'titulo_asc' ? 'selected' : '' }}>Título A-Z</option>
                                     <option value="titulo_desc" {{ $orden == 'titulo_desc' ? 'selected' : '' }}>Título Z-A</option>
+                                    <option value="fecha_desc" {{ $orden == 'fecha_desc' ? 'selected' : '' }}>Fecha publicación (nuevos)</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">&nbsp;</label>
-                                <a href="{{ route('docente.libros.index') }}" class="btn btn-outline-secondary w-100">
+                                <a href="{{ route('favoritos.index') }}" class="btn btn-outline-secondary w-100">
                                     <i class="fas fa-refresh"></i> Limpiar
                                 </a>
                             </div>
@@ -116,14 +117,14 @@
                 <!-- Estadísticas -->
                 <div class="row mb-4">
                     <div class="col-md-12">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            Tienes <strong>{{ $totalLibros }}</strong> libro(s) en tu biblioteca.
+                        <div class="alert alert-warning">
+                            <i class="fas fa-star"></i>
+                            Tienes <strong>{{ $totalFavoritos }}</strong> libro(s) en tus favoritos.
                         </div>
                     </div>
                 </div>
 
-                <!-- Lista de Libros -->
+                <!-- Lista de Libros Favoritos -->
                 @if($libros->count() > 0)
                     <div class="row">
                         @foreach($libros as $libro)
@@ -137,7 +138,7 @@
                                             <strong>Carrera:</strong> {{ $libro->carrera }} - {{ $libro->semestre }}<br>
                                             <strong>Año:</strong> {{ $libro->anio_publicacion }}<br>
                                             <strong>Tamaño:</strong> {{ $libro->getTamanioFormateado() }}<br>
-                                            <strong>Subido:</strong> {{ $libro->created_at->format('d/m/Y') }}
+                                            <strong>Agregado:</strong> {{ $libro->pivot->created_at->format('d/m/Y') }}
                                         </p>
                                         @if($libro->descripcion)
                                             <p class="card-text">
@@ -149,24 +150,16 @@
                                         <div class="btn-group w-100">
                                             <a href="{{ route('libro.ver', $libro->id) }}" 
                                                class="btn btn-outline-primary btn-sm" title="Ver libro">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye"></i> Ver
                                             </a>
-                                            <a href="{{ route('docente.libros.download', $libro->id) }}" 
-                                               class="btn btn-outline-primary btn-sm" title="Descargar">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                            <a href="{{ route('docente.libros.edit', $libro->id) }}" 
-                                               class="btn btn-outline-warning btn-sm" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('docente.libros.destroy', $libro->id) }}" 
+                                            <form action="{{ route('favoritos.remove', $libro->id) }}" 
                                                   method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger btn-sm" 
-                                                        title="Eliminar"
-                                                        onclick="return confirm('¿Estás seguro de eliminar este libro?')">
-                                                    <i class="fas fa-trash"></i>
+                                                        title="Quitar de favoritos"
+                                                        onclick="return confirm('¿Estás seguro de quitar este libro de favoritos?')">
+                                                    <i class="fas fa-trash"></i> Quitar
                                                 </button>
                                             </form>
                                         </div>
@@ -182,11 +175,11 @@
                     </div>
                 @else
                     <div class="text-center py-5">
-                        <i class="fas fa-book fa-4x text-muted mb-3"></i>
-                        <h5 class="text-muted">No tienes libros subidos</h5>
-                        <p class="text-muted">Comienza subiendo tu primer libro PDF</p>
-                        <a href="{{ route('docente.libros.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Subir Primer Libro
+                        <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No tienes libros favoritos</h5>
+                        <p class="text-muted">Agrega libros a tus favoritos para tener acceso rápido a ellos</p>
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar Libros
                         </a>
                     </div>
                 @endif

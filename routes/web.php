@@ -5,7 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LibroController;
 use App\Http\Controllers\BusquedaController;
+//use App\Http\Controllers\ThumbnailController;
 use App\Http\Controllers\LibroViewController;
+use App\Http\Controllers\FavoritoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -57,12 +59,19 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas para thumbnails
-Route::get('/thumbnail/generar/{libro}', [ThumbnailController::class, 'generarThumbnail'])->name('thumbnail.generar');
+/*Route::get('/thumbnail/generar/{libro}', [ThumbnailController::class, 'generarThumbnail'])->name('thumbnail.generar');
 Route::get('/thumbnail/{libro}', [ThumbnailController::class, 'obtenerThumbnail'])->name('thumbnail.obtener');
-
+*/
 // Rutas para visualizar libros
 Route::middleware('auth')->group(function () {
     Route::get('/libro/{libro}', [LibroViewController::class, 'ver'])->name('libro.ver');
     Route::get('/libro/{libro}/descargar', [LibroViewController::class, 'descargar'])->name('libro.descargar');
     Route::get('/libro/{libro}/pdf', [LibroViewController::class, 'verPdf'])->name('libro.pdf');
+});
+
+// Rutas para favoritos (disponible para todos los usuarios autenticados)
+Route::middleware('auth')->group(function () {
+    Route::post('/favoritos/toggle/{libro}', [FavoritoController::class, 'toggleFavorito'])->name('favoritos.toggle');
+    Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');
+    Route::delete('/favoritos/remove/{libro}', [FavoritoController::class, 'removeFavorito'])->name('favoritos.remove');
 });

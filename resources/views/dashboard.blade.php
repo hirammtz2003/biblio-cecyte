@@ -68,6 +68,9 @@
                         <i class="fas fa-book"></i> Mis Libros
                     </a>
                 @endif
+                <a class="nav-link" href="{{ route('favoritos.index') }}">
+                    <i class="fas fa-star"></i> Mis Favoritos
+                </a>
                 <span class="navbar-text me-3">
                     Bienvenido, {{ Auth::user()->nombre }}
                 </span>

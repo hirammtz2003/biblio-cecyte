@@ -79,4 +79,17 @@ class Usuario extends Authenticatable
     {
         return $this->nombre . ' ' . $this->apellido_paterno . ' ' . $this->apellido_materno;
     }
+
+    // Agregar esta relación al modelo Usuario
+    public function librosFavoritos()
+    {
+        return $this->belongsToMany(Libro::class, 'libro_favorito', 'usuario_id', 'libro_id')
+                    ->withTimestamps();
+    }
+
+    // Método para verificar si un libro es favorito
+    public function tieneFavorito($libroId)
+    {
+        return $this->librosFavoritos()->where('libro_id', $libroId)->exists();
+    }
 }
