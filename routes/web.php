@@ -8,6 +8,7 @@ use App\Http\Controllers\BusquedaController;
 //use App\Http\Controllers\ThumbnailController;
 use App\Http\Controllers\LibroViewController;
 use App\Http\Controllers\FavoritoController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -75,3 +76,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');
     Route::delete('/favoritos/remove/{libro}', [FavoritoController::class, 'removeFavorito'])->name('favoritos.remove');
 });
+
+// Ruta principal
+Route::get('/', [HomeController::class, 'welcome'])->name('home');
+
+// API para estadísticas
+Route::get('/estadisticas', [HomeController::class, 'getEstadisticas'])->name('estadisticas');
