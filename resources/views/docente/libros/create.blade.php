@@ -13,7 +13,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .upload-header {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(45deg, #db7f34ff, #b92941ff);
             color: white;
             border-radius: 15px 15px 0 0;
         }

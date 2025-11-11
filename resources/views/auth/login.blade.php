@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #aca108ff 0%, #c70808ff 100%);
             min-height: 100vh;
         }
         .login-card {
@@ -18,7 +18,7 @@
         }
         .card-header {
             border-radius: 15px 15px 0 0 !important;
-            background: linear-gradient(45deg, #007bff, #0056b3);
+            background: linear-gradient(45deg, #4e0d0dff 0%, #a01508);
         }
     </style>
 </head>

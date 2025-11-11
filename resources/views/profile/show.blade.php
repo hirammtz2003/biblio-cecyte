@@ -12,7 +12,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .profile-header {
-            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            background: linear-gradient(45deg, #db8008ff, #a06b08ff);
             color: white;
             border-radius: 15px 15px 0 0;
         }

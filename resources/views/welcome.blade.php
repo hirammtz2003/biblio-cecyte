@@ -6,9 +6,10 @@
     <title>Biblioteca Virtual - CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ asset('css/estilos.css') }}" rel="stylesheet">
     <style>
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4e0d0dff 0%, #a01508 100%);
             color: white;
             padding: 6rem 0;
         }
@@ -52,7 +53,6 @@
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="#features">Características</a>
-                <a class="nav-link" href="#about">Acerca de</a>
                 <a class="nav-link" href="{{ route('login') }}">Iniciar Sesión</a>
                 <a class="nav-link" href="{{ route('register') }}">Registrarse</a>
             </div>
@@ -63,7 +63,7 @@
     <section class="hero-section text-center">
         <div class="container">
             <h1 class="display-4 fw-bold mb-4">
-                Biblioteca Virtual CECyTE
+                Biblioteca Virtual CECyTEZ Río Grande   
             </h1>
             <p class="lead mb-4">
                 Accede a una amplia colección de material bibliográfico y didáctico 

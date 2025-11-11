@@ -12,13 +12,13 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .profile-header {
-            background: linear-gradient(45deg, #00b894, #55efc4);
+            background: linear-gradient(45deg, #b8b500ff, #efcb55ff);
             color: white;
             border-radius: 15px 15px 0 0;
         }
         .form-control:focus {
-            border-color: #00b894;
-            box-shadow: 0 0 0 0.2rem rgba(0, 184, 148, 0.25);
+            border-color: #b8b500ff;
+            box-shadow: 0 0 0 0.2rem rgba(230, 208, 13, 0.25);
         }
     </style>
 </head>

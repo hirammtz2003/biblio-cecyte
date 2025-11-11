@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Libros - Biblioteca CECyTE</title>
+    <title>Mis Libros Subidos - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .docente-header {
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            background: linear-gradient(45deg, #e46612ff, #e64b24ff);
             color: white;
             border-radius: 15px 15px 0 0;
         }
@@ -24,7 +24,7 @@
             margin-bottom: 1.5rem;
         }
         .book-card {
-            border-left: 4px solid #9b59b6;
+            border-left: 4px solid #e46612ff;
             transition: transform 0.2s;
         }
         .book-card:hover {

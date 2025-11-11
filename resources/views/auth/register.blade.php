@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Biblioteca CECyTE</title>
-    <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #aca108ff 0%, #c70808ff 100%);
             min-height: 100vh;
         }
         .register-card {
@@ -18,10 +17,10 @@
         }
         .card-header {
             border-radius: 15px 15px 0 0 !important;
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background: linear-gradient(45deg, #a7284eff, #d68408ff);
         }
         .form-control:focus {
-            border-color: #28a745;
+            border-color: #a7284eff;
             box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
         }
     </style>

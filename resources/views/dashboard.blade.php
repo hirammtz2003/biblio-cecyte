@@ -6,12 +6,13 @@
     <title>Dashboard - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ asset('css/estilos.css') }}" rel="stylesheet">
     <style>
         .navbar-brand {
             font-weight: bold;
         }
         .welcome-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4e0d0dff 0%, #a01508 100%);
             color: white;
             padding: 3rem 0;
             margin-bottom: 2rem;
@@ -72,7 +73,7 @@
                     <i class="fas fa-star"></i> Mis Favoritos
                 </a>
                 <span class="navbar-text me-3">
-                    Bienvenido, {{ Auth::user()->nombre }}
+                    Bienvenido/a, {{ Auth::user()->nombre }}
                 </span>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
@@ -85,7 +86,7 @@
     <!-- Welcome Section -->
     <div class="welcome-section">
         <div class="container text-center">
-            <h1>Biblioteca Virtual CECyTE</h1>
+            <h1>Biblioteca Virtual CECyTEZ Río Grande</h1>
             <p class="lead">Sistema de consulta digital</p>
         </div>
     </div>
