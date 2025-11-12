@@ -10,6 +10,7 @@
     <style>
         .navbar-brand {
             font-weight: bold;
+            font-size: 1.5rem;
         }
         .welcome-section {
             background: linear-gradient(135deg, #4e0d0dff 0%, #a01508 100%);
@@ -56,7 +57,9 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('dashboard') }}">Biblioteca CECyTE</a>
+            <a class="navbar-brand nav-brand" href="{{ route('dashboard') }}">
+                <i class="fas fa-book"></i> Biblioteca CECyTE
+            </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
                 @if(Auth::user()->isAdmin())

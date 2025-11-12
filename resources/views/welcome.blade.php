@@ -48,7 +48,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand nav-brand" href="{{ url('/') }}">
+            <a class="navbar-brand nav-brand" href="{{ route('dashboard') }}">
                 <i class="fas fa-book"></i> Biblioteca CECyTE
             </a>
             <div class="navbar-nav ms-auto">

@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
         .profile-card {
             border: none;
             border-radius: 15px;
@@ -26,10 +31,27 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('dashboard') }}">Biblioteca CECyTE</a>
+            <a class="navbar-brand nav-brand" href="{{ route('dashboard') }}">
+                <i class="fas fa-book"></i> Biblioteca CECyTE
+            </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
+                @if(Auth::user()->isAdmin())
+                    <a class="nav-link" href="{{ route('admin.usuarios.index') }}">
+                        <i class="fas fa-users-cog"></i> Administración
+                    </a>
+                @endif
+                @if(Auth::user()->tipo_usuario === 'Docente')
+                    <a class="nav-link" href="{{ route('docente.libros.index') }}">
+                        <i class="fas fa-book"></i> Mis Libros
+                    </a>
+                @endif
+                <a class="nav-link" href="{{ route('favoritos.index') }}">
+                    <i class="fas fa-star"></i> Mis Favoritos
+                </a>
+                <span class="navbar-text me-3">
+                    Bienvenido/a, {{ Auth::user()->nombre }}
+                </span>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
