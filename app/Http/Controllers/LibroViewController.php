@@ -61,6 +61,27 @@ class LibroViewController extends Controller
         return response()->file($rutaCompleta);
     }
 
+    public function streamPdf($id)
+    {
+        $libro = Libro::findOrFail($id);
+        
+        $rutaCompleta = $this->obtenerRutaCompleta($libro->ruta_archivo);
+        
+        if (!$rutaCompleta || !file_exists($rutaCompleta)) {
+            abort(404, "El archivo PDF no se encuentra disponible.");
+        }
+        
+        // Servir como stream binario para PDF.js
+        return response()->stream(function() use ($rutaCompleta) {
+            readfile($rutaCompleta);
+        }, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $libro->nombre_archivo . '"',
+            'Cache-Control' => 'private, max-age=3600',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     private function obtenerRutaCompleta($rutaArchivo)
     {
         // Probar diferentes ubicaciones comunes

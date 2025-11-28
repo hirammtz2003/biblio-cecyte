@@ -68,6 +68,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/libro/{libro}', [LibroViewController::class, 'ver'])->name('libro.ver');
     Route::get('/libro/{libro}/descargar', [LibroViewController::class, 'descargar'])->name('libro.descargar');
     Route::get('/libro/{libro}/pdf', [LibroViewController::class, 'verPdf'])->name('libro.pdf');
+    // NUEVA RUTA PARA PDF.js
+    Route::get('/libro/{libro}/stream', [LibroViewController::class, 'streamPdf'])->name('libro.stream');
 });
 
 // Rutas para favoritos (disponible para todos los usuarios autenticados)

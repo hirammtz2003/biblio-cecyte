@@ -7,7 +7,35 @@
     <title>{{ $libro->titulo }} - Biblioteca CECyTE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
+        .pdf-container {
+            height: 70vh;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        #pdf-canvas {
+            border: 1px solid #dee2e6;
+            max-width: 100%;
+            height: auto;
+        }
+        .pdf-controls {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        #page-navigation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
@@ -32,7 +60,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand nav-brand" href="{{ route('dashboard') }}">
+            <a class="navbar-brand" href="{{ route('dashboard') }}">
                 <i class="fas fa-book"></i> Biblioteca CECyTE
             </a>
             <div class="navbar-nav ms-auto">
@@ -62,7 +90,6 @@
     </nav>
 
     <div class="container mt-4">
-        <!--  -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Inicio</a></li>
@@ -71,7 +98,6 @@
         </nav>
 
         <div class="row">
-            <!-- Visor PDF -->
             <div class="col-12 mb-4">
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -79,7 +105,7 @@
                             <i class="fas fa-book"></i> {{ $libro->titulo }}
                         </h5>
                         <div>
-                            <!-- Botón de favoritos -->
+                            <!-- Botones de favoritos y descarga -->
                             <button id="favoritoBtn" 
                                     class="btn {{ Auth::user()->tieneFavorito($libro->id) ? 'btn-warning' : 'btn-light' }} btn-sm me-2"
                                     data-libro-id="{{ $libro->id }}">
@@ -108,20 +134,41 @@
                     <div class="card-body p-0">
                         @if($archivoExiste)
                             <div class="pdf-container">
-                                <iframe src="{{ route('libro.pdf', $libro->id) }}"
-                                        width="100%" 
-                                        height="100%"
-                                        frameborder="0"
-                                        style="border: none;">
-                                    <p>Tu navegador no soporta iframes. <a href="{{ route('libro.pdf', $libro->id) }}">Ver PDF</a></p>
-                                </iframe>
+                                <!-- Controles básicos -->
+                                <div class="pdf-controls">
+                                    <div id="page-navigation">
+                                        <button id="prev-page" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-chevron-left"></i> Anterior
+                                        </button>
+                                        <span class="mx-2">Página: 
+                                            <span id="page-num">1</span> / 
+                                            <span id="page-count">0</span>
+                                        </span>
+                                        <button id="next-page" class="btn btn-sm btn-outline-secondary">
+                                            Siguiente <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <select id="zoom-select" class="form-select form-select-sm">
+                                            <option value="0.5">50%</option>
+                                            <option value="0.75">75%</option>
+                                            <option value="1" selected>100%</option>
+                                            <option value="1.25">125%</option>
+                                            <option value="1.5">150%</option>
+                                            <option value="2">200%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Visor PDF -->
+                                <div id="pdf-viewer-container" class="d-flex justify-content-center p-3">
+                                    <canvas id="pdf-canvas"></canvas>
+                                </div>
                             </div>
                         @else
                             <div class="text-center py-5">
                                 <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
                                 <h4 class="text-warning">Archivo no disponible</h4>
-                                <p class="text-muted">El archivo PDF no se encuentra en el servidor.</p>
-                                <p class="text-muted"><small>Ruta esperada: {{ $libro->ruta_archivo }}</small></p>
                             </div>
                         @endif
                     </div>
@@ -214,93 +261,73 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    // Configurar PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
     document.addEventListener('DOMContentLoaded', function() {
-        const favoritoBtn = document.getElementById('favoritoBtn');
+        let pdfDoc = null;
+        let pageNum = 1;
+        let scale = 1;
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Cargar el PDF desde la nueva ruta stream
+        const loadingTask = pdfjsLib.getDocument('{{ route("libro.stream", $libro->id) }}');
         
-        if (favoritoBtn) {
-            favoritoBtn.addEventListener('click', function() {
-                const libroId = this.dataset.libroId;
-                const btn = this;
-                const icon = btn.querySelector('i');
-                const text = document.getElementById('favoritoText');
+        loadingTask.promise.then(function(pdf) {
+            pdfDoc = pdf;
+            document.getElementById('page-count').textContent = pdf.numPages;
+            renderPage(pageNum);
+        }).catch(function(error) {
+            console.error('Error al cargar PDF:', error);
+            document.getElementById('pdf-viewer-container').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-3"></i>
+                    <p>Error al cargar el PDF</p>
+                </div>
+            `;
+        });
+
+        function renderPage(num) {
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
                 
-                // Mostrar indicador de carga
-                btn.disabled = true;
-                const originalText = text.textContent;
-                text.textContent = 'Procesando...';
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
                 
-                fetch(`/favoritos/toggle/${libroId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({}) // Enviar objeto vacío como body
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Actualizar apariencia del botón
-                        if (data.esFavorito) {
-                            btn.classList.remove('btn-light');
-                            btn.classList.add('btn-warning');
-                            text.textContent = 'En favoritos';
-                        } else {
-                            btn.classList.remove('btn-warning');
-                            btn.classList.add('btn-light');
-                            text.textContent = 'Agregar a favoritos';
-                        }
-                        
-                        // Mostrar mensaje temporal
-                        mostrarMensaje(data.mensaje, data.esFavorito ? 'success' : 'info');
-                    } else {
-                        throw new Error(data.mensaje || 'Error desconocido');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarMensaje('Error al actualizar favoritos: ' + error.message, 'danger');
-                    // Revertir texto del botón
-                    text.textContent = originalText;
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                });
+                page.render(renderContext);
+                document.getElementById('page-num').textContent = num;
             });
         }
+
+        // Navegación
+        document.getElementById('prev-page').addEventListener('click', function() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            renderPage(pageNum);
+        });
         
-        function mostrarMensaje(mensaje, tipo) {
-            // Remover mensajes existentes
-            const mensajesExistentes = document.querySelectorAll('.alert-temporal');
-            mensajesExistentes.forEach(msg => msg.remove());
-            
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${tipo} alert-temporal alert-dismissible fade show position-fixed`;
-            alert.style.top = '20px';
-            alert.style.right = '20px';
-            alert.style.zIndex = '1050';
-            alert.style.minWidth = '300px';
-            alert.innerHTML = `
-                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-info-circle'} me-2"></i>
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alert);
-            
-            // Auto-remover después de 4 segundos
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }
-            }, 4000);
-        }
+        document.getElementById('next-page').addEventListener('click', function() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            renderPage(pageNum);
+        });
+
+        // Zoom
+        document.getElementById('zoom-select').addEventListener('change', function() {
+            scale = parseFloat(this.value);
+            renderPage(pageNum);
+        });
+
+        // Prevenir acciones no deseadas
+        canvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
     });
     </script>
 </body>
