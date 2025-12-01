@@ -5,73 +5,49 @@ namespace App\Http\Controllers;
 use App\Models\Libro;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ThumbnailController extends Controller
 {
     public function generarThumbnail($libroId)
     {
-        \Log::info("Generando thumbnail para libro: " . $libroId);
-        
         $libro = Libro::findOrFail($libroId);
-        $rutaCompleta = $this->obtenerRutaCompleta($libro->ruta_archivo);
+        $thumbnailPath = "thumbnails/{$libroId}.jpg";
+        $fullThumbnailPath = storage_path("app/public/{$thumbnailPath}");
         
-        \Log::info("Ruta del PDF: " . $rutaCompleta);
-        \Log::info("¿Existe el archivo?: " . (file_exists($rutaCompleta) ? 'Sí' : 'No'));
-
-        $thumbnailPath = storage_path("app/public/thumbnails/{$libroId}.jpg");
-        \Log::info("Ruta del thumbnail: " . $thumbnailPath);
-
-        // Crear directorio si no existe
-        if (!file_exists(dirname($thumbnailPath))) {
-            mkdir(dirname($thumbnailPath), 0755, true);
-        }
-
-        // Solo intentar generar si el PDF existe
-        if (file_exists($rutaCompleta)) {
-            try {
-                \Log::info("Intentando generar thumbnail con Spatie...");
-                
-                $pdf = new \Spatie\PdfToImage\Pdf($rutaCompleta);
-                
-                // Para la versión 1.2.2, prueba estos métodos
-                if (method_exists($pdf, 'setPage')) {
-                    $pdf->setPage(1);
-                }
-                
-                if (method_exists($pdf, 'setOutputFormat')) {
-                    $pdf->setOutputFormat('jpg');
-                }
-                
-                // Intentar guardar la imagen
-                $result = $pdf->saveImage($thumbnailPath);
-                \Log::info("Resultado de saveImage: " . ($result ? 'Éxito' : 'Fallo'));
-                
-                if (file_exists($thumbnailPath)) {
-                    \Log::info("Thumbnail generado exitosamente");
-                    return response()->file($thumbnailPath);
-                } else {
-                    \Log::error("Thumbnail no se generó pero no hubo error");
-                }
-                
-            } catch (\Exception $e) {
-                \Log::error("Error en Spatie: " . $e->getMessage());
+        // Si ya existe y es reciente (menos de 1 día), devolverlo
+        if (Storage::disk('public')->exists($thumbnailPath)) {
+            $fileTime = filemtime($fullThumbnailPath);
+            if (time() - $fileTime < 86400) { // 1 día en segundos
+                return Storage::disk('public')->response($thumbnailPath);
             }
         }
-
-        \Log::info("Usando thumbnail por defecto");
-        return $this->thumbnailPorDefecto();
+        
+        // Verificar que el PDF existe
+        $rutaCompleta = $this->obtenerRutaCompleta($libro->ruta_archivo);
+        if (!$rutaCompleta || !file_exists($rutaCompleta)) {
+            \Log::error("PDF no encontrado para thumbnail: " . $libroId);
+            return $this->thumbnailPorDefecto();
+        }
+        
+        // Crear directorio si no existe
+        if (!file_exists(dirname($fullThumbnailPath))) {
+            mkdir(dirname($fullThumbnailPath), 0755, true);
+        }
+        
+        try {
+            // Usar PDF.js en el cliente para generar thumbnails
+            // Esta será una solución híbrida
+            return $this->thumbnailPorDefecto($libro->titulo);
+            
+        } catch (\Exception $e) {
+            \Log::error("Error generando thumbnail para {$libroId}: " . $e->getMessage());
+            return $this->thumbnailPorDefecto($libro->titulo);
+        }
     }
 
     public function obtenerThumbnail($libroId)
     {
-        $thumbnailPath = "thumbnails/{$libroId}.jpg";
-        
-        if (Storage::disk('public')->exists($thumbnailPath)) {
-            \Log::info("Thumbnail encontrado en cache: " . $libroId);
-            return Storage::disk('public')->response($thumbnailPath);
-        }
-        
-        \Log::info("Thumbnail no encontrado, generando: " . $libroId);
         return $this->generarThumbnail($libroId);
     }
 
@@ -93,15 +69,54 @@ class ThumbnailController extends Controller
         return null;
     }
 
-    private function thumbnailPorDefecto()
+    private function thumbnailPorDefecto($titulo = null)
     {
+        // Generar un SVG con información del libro
+        $iniciales = $this->obtenerIniciales($titulo);
+        $color = $this->generarColorDesdeTexto($titulo ?? 'PDF');
+        
         $svg = '<?xml version="1.0" encoding="UTF-8"?>
         <svg width="120" height="160" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
-            <rect width="120" height="160" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
-            <path d="M40 60H80V75H40V60ZM60 90C54.4772 90 50 85.5228 50 80C50 74.4772 54.4772 70 60 70C65.5228 70 70 74.4772 70 80C70 85.5228 65.5228 90 60 90Z" fill="#6c757d"/>
-            <text x="60" y="120" text-anchor="middle" font-family="Arial" font-size="12" fill="#6c757d">PDF</text>
+            <rect width="120" height="160" fill="' . $color . '" rx="8" ry="8"/>
+            <rect x="2" y="2" width="116" height="156" fill="transparent" stroke="rgba(0,0,0,0.1)" stroke-width="1" rx="8" ry="8"/>
+            
+            <text x="60" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">
+                ' . htmlspecialchars($iniciales) . '
+            </text>
+            
+            <text x="60" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white" opacity="0.9">
+                PDF
+            </text>
+            
+            <rect x="10" y="130" width="100" height="20" fill="rgba(255,255,255,0.2)" rx="4" ry="4"/>
+            <text x="60" y="143" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">
+                CECyTE
+            </text>
         </svg>';
         
         return response($svg)->header('Content-Type', 'image/svg+xml');
+    }
+    
+    private function obtenerIniciales($texto)
+    {
+        if (empty($texto)) return 'PDF';
+        
+        $palabras = explode(' ', $texto);
+        $iniciales = '';
+        
+        foreach ($palabras as $palabra) {
+            if (ctype_alpha($palabra[0] ?? '')) {
+                $iniciales .= strtoupper($palabra[0]);
+                if (strlen($iniciales) >= 2) break;
+            }
+        }
+        
+        return !empty($iniciales) ? $iniciales : 'PDF';
+    }
+    
+    private function generarColorDesdeTexto($texto)
+    {
+        $hash = md5($texto);
+        return sprintf('#%s', substr($hash, 0, 6));
     }
 }

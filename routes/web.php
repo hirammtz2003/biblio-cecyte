@@ -60,9 +60,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas para thumbnails
-/*Route::get('/thumbnail/generar/{libro}', [ThumbnailController::class, 'generarThumbnail'])->name('thumbnail.generar');
-Route::get('/thumbnail/{libro}', [ThumbnailController::class, 'obtenerThumbnail'])->name('thumbnail.obtener');
-*/
+//Route::get('/thumbnail/generar/{libro}', [ThumbnailController::class, 'generarThumbnail'])->name('thumbnail.generar');
+//Route::get('/thumbnail/{libro}', [ThumbnailController::class, 'obtenerThumbnail'])->name('thumbnail.obtener');
+
 // Rutas para visualizar libros
 Route::middleware('auth')->group(function () {
     Route::get('/libro/{libro}', [LibroViewController::class, 'ver'])->name('libro.ver');
