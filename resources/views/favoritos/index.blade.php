@@ -48,11 +48,16 @@
                 <a class="nav-link" href="{{ route('profile.show') }}">Mi Perfil</a>
                 @if(Auth::user()->isAdmin())
                     <a class="nav-link" href="{{ route('admin.usuarios.index') }}">
-                        <i class="fas fa-users-cog"></i> Administración
+                        <i class="fas fa-users-cog"></i> Administración de Usuarios
                     </a>
                 @endif
                 @if(Auth::user()->tipo_usuario === 'Docente')
                     <a class="nav-link" href="{{ route('docente.libros.index') }}">
+                        <i class="fas fa-book"></i> Mis Libros
+                    </a>
+                @endif
+                @if(Auth::user()->tipo_usuario === 'Administrador')
+                    <a class="nav-link" href="{{ route('admin.libros.index') }}">
                         <i class="fas fa-book"></i> Mis Libros
                     </a>
                 @endif

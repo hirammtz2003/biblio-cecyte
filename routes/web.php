@@ -40,6 +40,13 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::put('/usuarios/{id}', [AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
     Route::delete('/usuarios/{id}', [AdminController::class, 'destroyUsuario'])->name('admin.usuarios.destroy');
     Route::get('/estadisticas', [AdminController::class, 'getEstadisticas'])->name('admin.estadisticas');
+    // Nuevas rutas para gestión de libros
+    Route::get('/libros', [LibroController::class, 'adminIndex'])->name('admin.libros.index');
+    Route::get('/libros/create', [LibroController::class, 'adminCreate'])->name('admin.libros.create');
+    Route::post('/libros', [LibroController::class, 'adminStore'])->name('admin.libros.store');
+    Route::get('/libros/{id}/edit', [LibroController::class, 'adminEdit'])->name('admin.libros.edit');
+    Route::put('/libros/{id}', [LibroController::class, 'adminUpdate'])->name('admin.libros.update');
+    Route::delete('/libros/{id}', [LibroController::class, 'adminDestroy'])->name('admin.libros.destroy');
 });
 
 // Rutas para docentes (gestión de libros)
@@ -78,6 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');
     Route::delete('/favoritos/remove/{libro}', [FavoritoController::class, 'removeFavorito'])->name('favoritos.remove');
 });
+
+
 
 // Ruta principal
 Route::get('/', [HomeController::class, 'welcome'])->name('home');

@@ -164,11 +164,11 @@
                                                   method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                <!--<button type="submit" class="btn btn-outline-danger btn-sm" 
                                                         title="Eliminar"
                                                         onclick="return confirm('¿Estás seguro de eliminar este libro?')">
                                                     <i class="fas fa-trash"></i>
-                                                </button>
+                                                </button>-->
                                             </form>
                                         </div>
                                     </div>
