@@ -1,0 +1,59 @@
+URL de acceso: http://biblioteca-cecyte-env.eba-natht2tn.us-east-2.elasticbeanstalk.com/
+¡IMPORTANTE!: En dispositivos móviles, asegurarse de que la URL sea "http" y no "https", para evitar
+problemas de conexión.
+
+PROCEDIMIENTO DE INSTALACIÓN
+
+1.-Primero se añaden al proyecto los archivos de configuración de las carpetas .ebextensions y .plataform
+y con 7-Zip se crea un archivo comprimido:
+    -Seleccionamos todo el contenido del proyecto y hacemos clic derecho > Agregar al archivo comprimido...
+    -En Formato del archivo comprimido > zip.
+    -En Modo de ruta > Nombres de ruta relativos.
+2.-Para la demostración, se subió la página a un servidor AWS, por lo que se optó por crear una cuenta
+con plan gratuito de AWS, el cual proporciona cierto crédito durante unos meses.
+3.-Buscamos en la consola de AWS la opcion "Elastic Beanstalk" y hacemos clic en "Crear aplicación".
+4.-A continuación lo que no se especifique se dejará como esta por defecto en la configuración. 
+5.-En el Paso 1. Configuración del entorno: 
+    -En Información de la aplicación > Nombre de aplicación: "Biblioteca-cecyte".
+    -En Información del entorno > Nombre del entorno: Biblioteca-cecyte-env.
+    -En Plataforma > PHP. 
+    -En Código de aplicación > Cargar el código > Archivo local > Elegir archivo. Y elegimos el archivo
+    ZIP de la app.
+    -En Código de aplicación > Etiqueta de versión: 1.
+    -En Valores preestablecidos > Instancia única (compatible con la capa gratuita).
+6.-En el Paso 2. Configuración del entorno:
+    -En Rol de servicio > Crear rol (si no tenemos uno creado).
+        -En Tipo de entidad de confianza > Servicio de AWS.
+        -En Caso de uso > Elastic Beanstalk.
+        -En Agregar permisos > Politicas de permisos > AWSElasticBeanstalkWebTier, 
+        AWSElasticBeanstalkWorkerTier, AWSElasticBeanstalkMulticontainerDocker, AmazonS3ReadOnlyAccess,
+        AmazonRDSFullAccess.
+        -En Nombre del rol: aws-elasticbeanstalk-service-role.
+        -Creamos y elegimos en Rol de servicio.
+    -En Perfil de instancia de EC2 Crear rol (si no tenemos uno creado).
+        -En Tipo de entidad de confianza > Servicio de AWS.
+        -En Caso de uso > EC2.
+        -En Agregar permisos > Politicas de permisos > AWSElasticBeanstalkWebTier, 
+        AWSElasticBeanstalkWorkerTier, AWSElasticBeanstalkMulticontainerDocker,
+        AmazonSSMManagedInstanceCore, AmazonS3FullAccess.
+        -En Nombre del rol: aws-elasticbeanstalk-ec2-role.
+        -Creamos y elegimos en Rol de servicio.
+7.-En el Paso 3. Configuración de redes, bases de datos y etiquetas:
+    -En Configuración de la instancia > VPC > (VCP por default).
+    -En Subredes de instancia > Zona de disponibilidad > Dos o tres opciones disponibles.
+    -En Base de datos > Habilitar base de datos.
+    -En Base de datos > Elegir subredes de base de datos.
+    -En Configuración de base de datos > Motor > mysql.
+    -En Configuración de base de datos > Clase de instancia > db.t3.micro.
+    -En Nombre de usuario > cecyteadmin.
+    -En Contraseña: ****.
+8.-En el Paso 4. Configuración de redes, bases de datos y etiquetas:
+    -En Tipo de entorno > Instancia única.
+    -En Arquitectura > x86_64.
+    -En Tipos de instancia > t3.micro (y eliminamos el resto).
+9.-En el Paso 5. Configuración de redes, bases de datos y etiquetas:
+    -Software de plataforma > Opciones de contenedor > Servidor proxy > Apache.
+10.-En el Paso 6. Revisión:
+    -Revisamos las configuraciones ya hechas anteriormente.
+    -Damos clic en Crear.
+11.-Esperamos a que sea creado el entorno. Puede tardar alrededor de 10 minutos.
