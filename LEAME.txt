@@ -1,9 +1,16 @@
-URL de acceso: http://biblioteca-cecyte-env.eba-natht2tn.us-east-2.elasticbeanstalk.com/
+URL DE ACCESO
+http://biblioteca-cecyte-env.eba-natht2tn.us-east-2.elasticbeanstalk.com/
 ¡IMPORTANTE!: En dispositivos móviles, asegurarse de que la URL sea "http" y no "https", para evitar
 problemas de conexión.
 
-PROCEDIMIENTO DE INSTALACIÓN
+CREDENCIALES DE ACCESO
+Diferentes tipos de cuentas creadas para pruebas:
+Administrador: francisco.ceniceros.ma@cecytezac.edu.mx
+Docente: gricelda.saucedo@cecytezac.edu.mx
+Alumno: hiram_saucedo@outlook.com
+Contraseña: 123456 (universal para los tres).
 
+PROCEDIMIENTO DE INSTALACIÓN
 1.-Primero se añaden al proyecto los archivos de configuración de las carpetas .ebextensions y .plataform
 y con 7-Zip se crea un archivo comprimido:
     -Seleccionamos todo el contenido del proyecto y hacemos clic derecho > Agregar al archivo comprimido...
@@ -42,18 +49,40 @@ con plan gratuito de AWS, el cual proporciona cierto crédito durante unos meses
     -En Configuración de la instancia > VPC > (VCP por default).
     -En Subredes de instancia > Zona de disponibilidad > Dos o tres opciones disponibles.
     -En Base de datos > Habilitar base de datos.
+    -En Restaurar una instantánea > Ninguno.
     -En Base de datos > Elegir subredes de base de datos.
     -En Configuración de base de datos > Motor > mysql.
     -En Configuración de base de datos > Clase de instancia > db.t3.micro.
     -En Nombre de usuario > cecyteadmin.
     -En Contraseña: ****.
-8.-En el Paso 4. Configuración de redes, bases de datos y etiquetas:
+8.-En el Paso 4. Configuración del escalado y del tráfico de instancias:
     -En Tipo de entorno > Instancia única.
     -En Arquitectura > x86_64.
     -En Tipos de instancia > t3.micro (y eliminamos el resto).
-9.-En el Paso 5. Configuración de redes, bases de datos y etiquetas:
+9.-En el Paso 5. Configuración de actualizaciones, monitoreo y registros:
     -Software de plataforma > Opciones de contenedor > Servidor proxy > Apache.
 10.-En el Paso 6. Revisión:
     -Revisamos las configuraciones ya hechas anteriormente.
     -Damos clic en Crear.
 11.-Esperamos a que sea creado el entorno. Puede tardar alrededor de 10 minutos.
+12.-Para crear la base de datos en AWS, buscamos Aurora and RDS > Bases de datos > Crear base de datos.
+    -En Elegir un método de creación de base de datos > Creación estándar.
+    -En Opciones del motor > MySQL.
+    -En Versión del motor > (La recomendada).
+    -En Identificador de instancias de bases de datos > biblioteca-cecyte-db.
+    -En Nombre de usuario maestro > cecyte_admin
+13.-Configuramos el grupo de seguridad.
+    -En AWS, vamos a EC2 Console > Red y Seguridad > Security Groups.
+    -En Nombre del grupo de seguridad > biblioteca-cecyte-sg.
+    -En Reglas de salida > Tipo > MySQL/Aurora.
+    -Crear grupo de seguridad.
+    -Obtenemos la Información de conexión:
+        -En Aurora and RDS > Bases de datos > biblioteca-cecyte-db.
+        -Copiamos el Punto de enlace y añadimos a .ebextensions/01-database.config en DB_HOST.
+        -Cargamos de nuevo el ZIP.
+14.-Pasamos la base de datos de desarrollo a producción:
+    -En phpMAdmin, descargamos un respaldo de la base de datos.
+        -En nuestra base de datos > Exportar > Exportar.
+        -Descargamos adminer.php y copiamos a nuestra carpeta htdocs en XAMPP.
+        -Con adminer.php nos conectamos a nuestra base de datos y exportamos.
+15.-Verificar el funcionaiento accediendo a la URL de la app e iniciar sesión con las cuentas registradas.
